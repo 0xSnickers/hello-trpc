@@ -1,11 +1,10 @@
 import { create } from 'zustand';
-import { trpc } from '../utils/trpc';
+import type { AppRouter } from '../../../server/src/router';
+import { inferRouterOutputs } from '@trpc/server';
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+// 从 tRPC 路由推断类型，确保类型安全
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type User = RouterOutput['user']['list'][0];
 
 interface UserStore {
   users: User[];
@@ -41,16 +40,8 @@ export const useUserStore = create<UserStore>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   
   fetchUsers: async () => {
-    set({ isLoading: true });
-    try {
-      // 使用 fetch 方式调用 tRPC
-      const response = await fetch('http://localhost:13001/trpc/user.list');
-      const data = await response.json();
-      const users = data.result?.data || [];
-      set({ users, isLoading: false });
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-      set({ isLoading: false });
-    }
+    // 这个方法现在由组件中的 tRPC hooks 调用
+    // store 只负责状态管理，不直接调用 API
+    console.log('fetchUsers called - 应该由组件中的 tRPC hooks 处理');
   }
 }));

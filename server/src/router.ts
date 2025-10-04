@@ -2,10 +2,14 @@ import { z } from 'zod';
 import { router, publicProcedure } from './trpc';
 
 // 模拟数据存储
-let users = [
-  { id: 1, name: 'Alice', email: 'alice@example.com' },
-  { id: 2, name: 'Bob', email: 'bob@example.com' },
-  { id: 3, name: 'Charlie', email: 'charlie@example.com' }
+let users:{ id: number; name: string; email: string; age?: number }[] = [
+  // { id: 1, name: 'Alice', email: 'alice@example.com' },
+  // { id: 2, name: 'Bob', email: 'bob@example.com' },
+  // { id: 3, name: 'Charlie', email: 'charlie@example.com' }
+  { id: 1, name: 'Alice', email: 'alice@example.com', age: 25 },
+  { id: 2, name: 'Bob', email: 'bob@example.com', age: 30 },
+  { id: 3, name: 'Charlie', email: 'charlie@example.com', age: 28 }
+
 ];
 
 let posts = [
@@ -34,13 +38,13 @@ export const appRouter = router({
     create: publicProcedure
       .input(z.object({
         name: z.string().min(1),
-        email: z.string().email()
+        email: z.string().email(),
       }))
       .mutation(({ input }) => {
         const newUser = {
           id: Math.max(...users.map(u => u.id)) + 1,
           name: input.name,
-          email: input.email
+          email: input.email,
         };
         users.push(newUser);
         return newUser;
@@ -164,14 +168,6 @@ export const appRouter = router({
       })
   }),
   
-  // 统计接口
-  stats: publicProcedure.query(() => {
-    return {
-      userCount: users.length,
-      postCount: posts.length,
-      averagePostsPerUser: users.length > 0 ? posts.length / users.length : 0
-    };
-  })
 });
 
 export type AppRouter = typeof appRouter;

@@ -7,12 +7,18 @@ export function UserList() {
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
 
-  const { users, isLoading, updateUser, deleteUser: removeUser, fetchUsers } = useUserStore();
+  const { users, isLoading, updateUser, deleteUser: removeUser, setUsers, setLoading } = useUserStore();
+  
+  // 使用 tRPC hook 获取数据，保持类型安全
+  const { data: tRPCUsers, isLoading: tRPCLoading } = trpc.user.list.useQuery();
 
-  // 组件挂载时获取用户数据
+  // 同步 tRPC 数据到 Zustand store
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (tRPCUsers) {
+      setUsers(tRPCUsers);
+    }
+    setLoading(tRPCLoading);
+  }, [tRPCUsers, tRPCLoading, setUsers, setLoading]);
 
   const deleteUserMutation = trpc.user.delete.useMutation({
     onSuccess: (deletedUser) => {
@@ -72,7 +78,7 @@ export function UserList() {
 
   return (
     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-      {users?.map((user: any) => (
+      {users?.map((user) => (
         <div
           key={user.id}
           style={{
@@ -139,6 +145,7 @@ export function UserList() {
               <div>
                 <div style={{ fontWeight: 'bold' }}>{user.name}</div>
                 <div style={{ color: '#666', fontSize: '14px' }}>{user.email}</div>
+                <div style={{ color: '#666', fontSize: '14px' }}>{user.age}</div>
               </div>
               <div style={{ display: 'flex', gap: '5px' }}>
                 <button

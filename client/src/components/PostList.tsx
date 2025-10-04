@@ -7,12 +7,18 @@ export function PostList() {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
 
-  const { posts, isLoading, updatePost, deletePost: removePost, fetchPosts } = usePostStore();
+  const { posts, isLoading, updatePost, deletePost: removePost, setPosts, setLoading } = usePostStore();
+  
+  // 使用 tRPC hook 获取数据，保持类型安全
+  const { data: tRPCPosts, isLoading: tRPCLoading } = trpc.post.list.useQuery();
 
-  // 组件挂载时获取文章数据
+  // 同步 tRPC 数据到 Zustand store
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (tRPCPosts) {
+      setPosts(tRPCPosts);
+    }
+    setLoading(tRPCLoading);
+  }, [tRPCPosts, tRPCLoading, setPosts, setLoading]);
 
   const handleEdit = (post: { id: number; title: string; content: string; userId: number; user?: { id: number; name: string; email: string } }) => {
     setEditingId(post.id);
@@ -68,7 +74,7 @@ export function PostList() {
 
   return (
     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-      {posts?.map((post: any) => (
+      {posts?.map((post) => (
         <div
           key={post.id}
           style={{
