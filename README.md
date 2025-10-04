@@ -124,9 +124,3 @@ cd ./server && npm run dev
 1. 在 `apps/server/src/router.ts` 中添加新的路由
 2. 使用 Zod 定义输入验证模式
 3. 前端会自动获得类型提示
-
-### 修改共享类型
-
-1. 在 `packages/shared/src/types.ts` 中定义类型
-2. 在 `packages/shared/src/index.ts` 中导出
-3. 前后端都可以使用这些类型
